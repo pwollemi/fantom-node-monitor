@@ -32,6 +32,8 @@ func (m *Monitor) Execute() {
 		"blockHeight":         getBlockNumber(),
 		"topPeersBlockHeight": getTopPeersBlockHeight(),
 		"timestamp":           time.Now(),
+		"cpu":                 getCpuUsage(),
+		"memory":              getMemoryUsage(),
 	}
 
 	serverURL := config.Config().GetString("SERVER_URL")

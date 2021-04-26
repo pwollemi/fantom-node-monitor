@@ -13,6 +13,8 @@ import (
 
 	"github.com/flashguru-git/node-monitor/config"
 	"github.com/flashguru-git/node-monitor/log"
+	"github.com/mackerelio/go-osstat/cpu"
+	"github.com/mackerelio/go-osstat/memory"
 )
 
 func sendPostRequest(serverURL string, data map[string]interface{}) {
@@ -112,4 +114,31 @@ func getTopPeersBlockHeight() uint64 {
 		}
 	}
 	return topHeight
+}
+
+func getMemoryUsage() map[string]interface{} {
+	memory, err := memory.Get()
+	if err != nil {
+		return nil
+	}
+	return map[string]interface{}{
+		"total":  memory.Total,
+		"used":   memory.Used,
+		"cached": memory.Cached,
+		"free":   memory.Free,
+	}
+}
+
+func getCpuUsage() map[string]interface{} {
+	data, err := cpu.Get()
+	if err != nil {
+		return nil
+	}
+	return map[string]interface{}{
+		"user":   data.User,
+		"system": data.System,
+		"total":  data.Total,
+		"idle":   data.Idle,
+		"nice":   data.Nice,
+	}
 }
