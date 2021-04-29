@@ -147,11 +147,9 @@ func getIpAddrs() (res []string) {
 	for _, a := range addrs {
 		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 			if ipnet.IP.To4() != nil {
-				fmt.Println(ipnet.IP.String() + "\n")
 				res = append(res, ipnet.IP.String())
 			}
 		}
 	}
-	fmt.Println(res, len(res))
 	return res
 }
