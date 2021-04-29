@@ -1,6 +1,6 @@
 # Node Monitor
 
-Monitor and Send email notification every 1 minute.
+Monitor Fantom Nodes.
 
 ## Running the monitor
 

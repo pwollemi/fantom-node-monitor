@@ -71,6 +71,7 @@ func getNodeId() string {
 		log.Errorln(err.Error())
 		return ""
 	}
+	res = strings.ReplaceAll(res, "\n", "")
 	return strings.ReplaceAll(res, `"`, "")
 }
 
