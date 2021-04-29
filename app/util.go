@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"os/exec"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/flashguru-git/node-monitor/config"
 	"github.com/flashguru-git/node-monitor/log"
@@ -45,9 +47,10 @@ func sendPostRequest(serverURL string, data map[string]interface{}) {
 	}(rp)
 }
 
-func queryNode(key string) (string, error) {
+func queryConsole(query string) (string, error) {
 	lachesisConsole := config.Config().GetString("LACHESIS_CONSOLE")
-	command := fmt.Sprintf(`echo "%v" | %v | tr -d '\n'`, key, lachesisConsole)
+	// command := fmt.Sprintf(`echo "%v" | %v | tr -d '\n'`, key, lachesisConsole)
+	command := fmt.Sprintf(`%v --exec "%v"`, lachesisConsole, query)
 	cmd := exec.Command("/bin/sh", "-c", command)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -63,31 +66,22 @@ func queryNode(key string) (string, error) {
 }
 
 func getNodeId() string {
-	res, err := queryNode("admin.nodeInfo.id")
+	res, err := queryConsole("admin.nodeInfo.id")
 	if err != nil {
 		log.Errorln(err.Error())
 		return ""
 	}
-	re := regexp.MustCompile(`>\s+"([0-9a-zA-Z]+)">`)
-	match := re.FindStringSubmatch(res)
-	if len(match) < 2 {
-		return ""
-	}
-	return match[1]
+	return strings.ReplaceAll(res, `"`, "")
 }
 
 func getBlockNumber() uint64 {
-	res, err := queryNode("ftm.blockNumber")
+	res, err := queryConsole("ftm.blockNumber")
 	if err != nil {
 		log.Errorln(err.Error())
 		return 0
 	}
-	re := regexp.MustCompile(`>\s+([0-9]+)>`)
-	match := re.FindStringSubmatch(res)
-	if len(match) < 2 {
-		return 0
-	}
-	blockNumber, err := strconv.ParseUint(match[1], 10, 64)
+	res = strings.ReplaceAll(res, "\n", "")
+	blockNumber, err := strconv.ParseUint(res, 10, 64)
 	if err != nil {
 		log.Errorln(err.Error())
 		return 0
@@ -96,12 +90,12 @@ func getBlockNumber() uint64 {
 }
 
 func getTopPeersBlockHeight() uint64 {
-	res, err := queryNode("admin.peers")
+	res, err := queryConsole("admin.peers")
 	if err != nil {
 		log.Errorln(err.Error())
 		return 0
 	}
-	re := regexp.MustCompile(`\s+blocks:\s+([0-9]+)`)
+	re := regexp.MustCompile(`\s+blocks:\s+([0-9]+),`)
 	var topHeight uint64 = 0
 	for _, match := range re.FindAllStringSubmatch(res, -1) {
 		if len(match) < 2 {
@@ -141,4 +135,23 @@ func getCpuUsage() map[string]interface{} {
 		"idle":   data.Idle,
 		"nice":   data.Nice,
 	}
+}
+
+func getIpAddrs() (res []string) {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		log.Errorln("Oops: " + err.Error() + "\n")
+		return
+	}
+
+	for _, a := range addrs {
+		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				fmt.Println(ipnet.IP.String() + "\n")
+				res = append(res, ipnet.IP.String())
+			}
+		}
+	}
+	fmt.Println(res, len(res))
+	return res
 }

@@ -14,6 +14,8 @@ type Monitor struct {
 	Cycle   time.Duration
 	RunAt   time.Time
 	PrevRun time.Time
+
+	Data map[string]interface{}
 }
 
 func NewMonitor(s *Server, c time.Duration, run time.Time, prev time.Time) *Monitor {
@@ -23,12 +25,16 @@ func NewMonitor(s *Server, c time.Duration, run time.Time, prev time.Time) *Moni
 		Cycle:   c,
 		RunAt:   run,
 		PrevRun: prev,
+		Data: map[string]interface{}{
+			"nodeId":  getNodeId(),
+			"ipAddrs": getIpAddrs(),
+		},
 	}
 }
 
 func (m *Monitor) Execute() {
 	data := map[string]interface{}{
-		"nodeId":              getNodeId(),
+		"nodeId":              m.Data["nodeId"],
 		"blockHeight":         getBlockNumber(),
 		"topPeersBlockHeight": getTopPeersBlockHeight(),
 		"timestamp":           time.Now(),
