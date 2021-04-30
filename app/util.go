@@ -138,7 +138,22 @@ func getCpuUsage() map[string]interface{} {
 	}
 }
 
-func getIpAddrs() (res []string) {
+func getIpAddr() string {
+	cmd := exec.Command("/bin/sh", "-c", "curl -4 icanhazip.com")
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return ""
+	}
+	if err := cmd.Start(); err != nil {
+		return ""
+	}
+
+	var b bytes.Buffer
+	io.Copy(&b, stdout)
+	return b.String()
+}
+
+func getLocalIpAddrs() (res []string) {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		log.Errorln("Oops: " + err.Error() + "\n")

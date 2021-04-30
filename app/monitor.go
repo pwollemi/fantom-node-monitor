@@ -26,8 +26,8 @@ func NewMonitor(s *Server, c time.Duration, run time.Time, prev time.Time) *Moni
 		RunAt:   run,
 		PrevRun: prev,
 		Data: map[string]interface{}{
-			"nodeId":  getNodeId(),
-			"ipAddrs": getIpAddrs(),
+			"nodeId": getNodeId(),
+			"ipAddr": getIpAddr(),
 		},
 	}
 }
@@ -35,6 +35,7 @@ func NewMonitor(s *Server, c time.Duration, run time.Time, prev time.Time) *Moni
 func (m *Monitor) Execute() {
 	data := map[string]interface{}{
 		"nodeId":              m.Data["nodeId"],
+		"ipAddr":              m.Data["ipAddr"],
 		"blockHeight":         getBlockNumber(),
 		"topPeersBlockHeight": getTopPeersBlockHeight(),
 		"timestamp":           time.Now(),
