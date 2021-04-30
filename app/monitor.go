@@ -38,7 +38,7 @@ func (m *Monitor) Execute() {
 		"ipAddr":              m.Data["ipAddr"],
 		"blockHeight":         getBlockNumber(),
 		"topPeersBlockHeight": getTopPeersBlockHeight(),
-		"timestamp":           time.Now(),
+		"createdAt":           time.Now(),
 		"cpu":                 getCpuUsage(),
 		"memory":              getMemoryUsage(),
 	}
