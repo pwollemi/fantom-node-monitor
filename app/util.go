@@ -150,7 +150,7 @@ func getIpAddr() string {
 
 	var b bytes.Buffer
 	io.Copy(&b, stdout)
-	return b.String()
+	return strings.ReplaceAll(b.String(), "\n", "")
 }
 
 func getLocalIpAddrs() (res []string) {
