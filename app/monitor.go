@@ -33,6 +33,18 @@ func NewMonitor(s *Server, c time.Duration, run time.Time, prev time.Time) *Moni
 }
 
 func (m *Monitor) Execute() {
+	if isValidIP(m.Data["ipAddr"].(string)) {
+		m.Data["ipAddr"] = getIpAddr()
+	}
+	if isValidIP(m.Data["nodeId"].(string)) {
+		m.Data["nodeId"] = getNodeId()
+	}
+
+	if !isValidNodeId(m.Data["nodeId"].(string)) {
+		log.Errorln("No node is running.")
+		return
+	}
+
 	data := map[string]interface{}{
 		"nodeId":              m.Data["nodeId"],
 		"ipAddr":              m.Data["ipAddr"],

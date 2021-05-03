@@ -65,6 +65,15 @@ func queryConsole(query string) (string, error) {
 	return b.String(), nil
 }
 
+func isValidNodeId(nodeId string) bool {
+	re := regexp.MustCompile(`^[0-9a-fA-F]{64}$`)
+	return re.MatchString(nodeId)
+}
+
+func isValidIP(ip string) bool {
+	return net.ParseIP(ip) != nil
+}
+
 func getNodeId() string {
 	res, err := queryConsole("admin.nodeInfo.id")
 	if err != nil {
